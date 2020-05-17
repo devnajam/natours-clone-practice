@@ -4,7 +4,7 @@ class APIFeatures {
     this.queryString = queryString;
   }
   filter() {
-    //Needs to be learned
+    //Learn filtering
 
     const queryObj = { ...this.queryString };
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
@@ -26,6 +26,17 @@ class APIFeatures {
       this.query = this.query.sort('-createdAt');
     }
 
+    return this;
+  }
+
+  limitFields() {
+    //learn about queryString
+    if (this.queryString.fields) {
+      const fields = this.queryString.fields.split(',').join(' ');
+      this.query = this.query.select(fields);
+    } else {
+      this.query = this.query.select('-__v');
+    }
     return this;
   }
 }
