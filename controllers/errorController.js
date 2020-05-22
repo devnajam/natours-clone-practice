@@ -33,3 +33,21 @@ const sendErrorDev = (err, res) => {
     stack: err.stack,
   });
 };
+
+const sendErrorProd = (err, res) => {
+  if (err.isOperational) {
+    res.status(err.statusCode).json({
+      status: err.status,
+      message: err.message,
+    });
+    //Programming or other error dont release the details
+  } else {
+    //log error
+    console.error('ERROR 🔥', err);
+    //send generic message
+    res.status(500).json({
+      status: 'error',
+      message: 'Something went very wrong',
+    });
+  }
+};
