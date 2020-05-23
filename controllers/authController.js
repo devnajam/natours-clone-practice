@@ -155,3 +155,29 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     );
   }
 });
+
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  //get user based on the token
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(req.params.token)
+    .digest('hex');
+
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+
+  //if token is valid and there is user then reset password
+  if (!user) {
+    return next(new AppError('Token is invalid or has expired', 400));
+  }
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+
+  //log the user in and send jwt
+  createSendToken(user, 200, res);
+});
